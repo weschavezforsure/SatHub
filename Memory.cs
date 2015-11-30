@@ -8,14 +8,14 @@ namespace SatHub
 {
     class Memory
     {
-        private int _numBytes;
+        public int _numBytes;
 	public int _trDataTag;
-        private int _latecy;
+        public int _latency;
 	public int _usage;
         public Memory(int numBytes, int latency)
         {
             _numBytes = numBytes;
-            _latecy = latency;
+            _latency = latency;
         }
         public void writeMemTag(int trDataTag)
         {

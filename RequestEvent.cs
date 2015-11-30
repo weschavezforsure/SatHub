@@ -45,6 +45,7 @@ namespace SatHub
 	    if (currentTime == _tStartTime)
             {
 		memory.use();
+		int dontcare;
 		dontcare = memory.read2Bytes(_numBytesFinished);	
 		_firstSendToDeviceTime = currentTime + memory.getLatency();
 		return finished;
@@ -88,7 +89,7 @@ namespace SatHub
             }
 	    if (_waitingForSatellite == 1)
 	    {
-		if (satelliteUplinkBuffer.updateRequest(currentTime))
+		if (satelliteUplinkBuffer.updateRequest(currentTime) == 1)
 		{
 		    satelliteDownlinkBuffer.startSending(currentTime);
 		    _waitingForSatellite = 0;

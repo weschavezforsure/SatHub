@@ -53,11 +53,11 @@ namespace SatHub
 
 	    int latched2BytesFromDeviceUplink;
 	    latched2BytesFromDeviceUplink = deviceUplinkBuffer.update(currentTime);
-	    if (latched2BytesFromDeviceUplink)
+	    if (latched2BytesFromDeviceUplink == 1)
 	    {
 		int last2Bytes;
 		last2Bytes = memory.write2Bytes(_numBytesFinished);
-		if (last2Bytes)
+		if (last2Bytes == 1)
 		{
 		    _uplinkBeingUsed = false;
 		    _finishTime = currentTime + memory.getLatency();
@@ -75,7 +75,8 @@ namespace SatHub
 		memory.use();
         	memory.writeMemTag(_trDataTag);
 	        deviceUplinkBuffer.setTimeFor2Bytes(currentTime, satelliteUplinkBuffer.getTimeFor2Bytes());
-		int dontcare = memory.read2Bytes(_numBytesFinished);	
+		int dontcare;
+		dontcare = memory.read2Bytes(_numBytesFinished);	
 		_firstSendToSatTime = currentTime + memory.getLatency();
 		return finished;
 	    }
@@ -98,14 +99,14 @@ namespace SatHub
 	    }
 	    
 	    int latched2BytesFromDeviceUplink;
-	    latched2BytesFromDeviceUplink = deviceUplinkBuffer.updateSend(currentTime);
-	    if (latched2BytesFromDeviceUplink)
+	    latched2BytesFromDeviceUplink = deviceUplinkBuffer.update(currentTime);
+	    if (latched2BytesFromDeviceUplink == 1)
 	    {
 		int last2Bytes;
 		last2Bytes = memory.read2Bytes(_numBytesFinished);
 		//Latch to SatelliteUplinkBuffer?
 		last2Bytes = memory.write2Bytes(_numBytesFinished);
-		if (last2Bytes)
+		if (last2Bytes == 1)
 		{
 		    _uplinkBeingUsed = false;
 		    _finishTime = currentTime + memory.getLatency() + satelliteUplinkBuffer.getLatency();
