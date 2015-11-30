@@ -1,4 +1,16 @@
-﻿using System;
+﻿// DeviceUplinkBuffer.cs
+// An object to represent wireless uplinks from devices to the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates three of these, then sendEvents call their update method.
+// If the device uplink buffer has latched two bytes, update will return 1. 0 otherwise.
+// To facilitate a simpler method for sending data to the satellite, sendEvents can
+// change the transfer rate to that of the satellite uplink in order to evict and replace memory
+// at the same speed.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

@@ -1,4 +1,13 @@
-﻿using System;
+﻿// SatelliteUplinkBuffer.cs
+// An object to represent a satellite uplink from the satellite hub to the satellite.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates one of these.  SendEvents AND RequestEvents can use these to send data and to
+// send a request command to the satellite.  If the satellite uplink buffer has sent two bytes, update will return 1. 0 otherwise.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

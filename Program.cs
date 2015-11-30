@@ -1,4 +1,12 @@
-﻿using System;
+﻿// Program.cs
+// Main class to keep track of and update Events in the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates all the hardware, then loops through time to create and service events.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

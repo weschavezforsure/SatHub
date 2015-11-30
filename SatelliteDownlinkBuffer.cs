@@ -1,4 +1,13 @@
-﻿using System;
+﻿// SatelliteDownlinkBuffer.cs
+// An object to represent a downlink from the satellite/data center to the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates one of these.  RequestEvents can use these to receive data from
+// the satellite/data center.  If the satellite uplink buffer has sent two bytes, update will return 1. 0 otherwise.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

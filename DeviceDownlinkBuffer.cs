@@ -1,4 +1,13 @@
-﻿using System;
+﻿// DeviceDownlinkBuffer.cs
+// An object to represent wireless downlinks from the satellite hub to the devices.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates three of these.  RequestEvents can use these to receive
+// requested data.  If the device uplink buffer has latched two bytes, update will return 1. 0 otherwise.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

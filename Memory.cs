@@ -1,4 +1,13 @@
-﻿using System;
+﻿// Memory.cs
+// An object to represent a memory space in the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates a number of these.  SendEvents AND RequestEvents can use these to send data and to
+// receive data from.  If the event is reading or writing the last 2 bytes, update will return 1. 0 otherwise.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

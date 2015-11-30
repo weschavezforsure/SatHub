@@ -1,4 +1,16 @@
-﻿using System;
+﻿// SendEvent.cs
+// An object to keep track of time and status for a send transaction in the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates one of these when an event on the same device link has completed.  
+// If the event is finished, update will return 1. 0 otherwise.
+// SendEvents either send data directly to memory or evict and replace memory, hence the overloading of update functions.
+// Memory that is evicted gets send to the satellite.  This event finishes when the memory is written to or
+// the satellite uplink transmission has completed.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -79,7 +91,7 @@ namespace SatHub
 	    }
 	    if (currentTime == _finishTime)
 	    {
-		deviceUplinkBuffer.setTimeFor2Bytes(currentTime, 291);
+		deviceUplinkBuffer.setTimeFor2Bytes(currentTime, 304);
 		memory.stopUsing();
 		finished = 1;
 		return finished;

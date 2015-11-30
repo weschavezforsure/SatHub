@@ -1,4 +1,16 @@
-﻿using System;
+﻿// RequestEvent.cs
+// An object to keep track of time and status for a request transaction in the satellite hub.
+// 
+// 11/30/15
+// -Wesley Chavez
+//
+// Program.cs instantiates one of these when an event on the same device link has completed.  
+// If the event is finished, update will return 1. 0 otherwise.
+// RequestEvents either receive data directly from memory or send a command to the satellite and receive
+// data via the SatelliteDownlink, hence the overloading of update functions.
+// This event finishes when all the data is send to the device via the device downlink.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
