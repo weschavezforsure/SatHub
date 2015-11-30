@@ -21,6 +21,14 @@ namespace SatHub
 	    _inUse = 0;
 	    _startTransactionTime = 0;
         }
+	public void startUsing ()
+	{
+	    _inUse = 1;
+	}
+	public void stopUsing ()
+	{
+	    _inUse = 0;
+	}
 	public void startSending (int currentTime)
 	{
 	    _startTransactionTime = currentTime;

@@ -83,18 +83,12 @@ namespace SatHub
 	    if (currentTime == _finishTime)
 	    {
 		deviceUplinkBuffer.setTimeFor2Bytes(currentTime, 291);
-		satelliteUplinkBuffer.stopUsing();
 		memory.stopUsing();
 		finished = 1;
 		return finished;
 	    }
 	    if (currentTime < _firstSendToSatTime)
 	    {
-		return finished;
-	    }
-	    if (currentTime == _firstSendToSatTime)
-	    {
-	        satelliteUplinkBuffer.startUsing(currentTime);
 		return finished;
 	    }
 	    

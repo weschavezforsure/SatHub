@@ -84,6 +84,7 @@ namespace SatHub
 	    if (currentTime == _tStartTime)
             {
 		satelliteUplinkBuffer.startUsingRequest(currentTime);	
+		satelliteDownlinkBuffer.startUsing();
 		_waitingForSatellite = 1;
 		return finished;
             }
@@ -104,6 +105,7 @@ namespace SatHub
         	{
             	    if (_numBytesFinished == _transactionSize - 2)
                     {
+			satelliteDownlinkBuffer.stopUsing();
                     	_finishTime = currentTime + deviceDownlinkBuffer.getTimeFor2Bytes();
 		    }
 		    _numBytesFinished += 2;

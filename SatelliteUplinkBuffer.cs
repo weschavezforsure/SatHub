@@ -14,7 +14,7 @@ namespace SatHub
         private int _sendTransactionStartTime;
         private int _requestTransactionStartTime;
 
-	private int _inUse;
+	public int _inUse;
         // SatelliteUplinkBuffer Constructor. Takes in the id number and transfer rate
         public SatelliteUplinkBuffer(int timeFor2Bytes, int latency)
         {
@@ -23,10 +23,13 @@ namespace SatHub
 	    _sendTransactionStartTime = 0;
 	    _inUse = 0;
         }
-	public void startUsing (int sendTransactionStartTime)
+	public void startUsing()
+	{
+	    _inUse = 1;
+	}
+	public void startSending(int sendTransactionStartTime)
 	{
 	    _sendTransactionStartTime = sendTransactionStartTime;
-	    _inUse = 1;
 	}
 	public void startUsingRequest(int requestTransactionStartTime)
 	{
@@ -44,10 +47,6 @@ namespace SatHub
 	public int getLatency ()
 	{
 	    return _latency;
-	}
-	public int getUsage ()
-	{
-	    return _inUse;
 	}
 
 	public int updateSend(int currentTime)
