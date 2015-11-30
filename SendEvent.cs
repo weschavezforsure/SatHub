@@ -41,7 +41,6 @@ namespace SatHub
 	    if (currentTime == _tStartTime)
 	    {
         	memory.writeMemTag(_trDataTag);
-		memory.use();
 		return finished;
 	    }
 	    if (_finishTime == currentTime)
@@ -50,7 +49,6 @@ namespace SatHub
 		finished = 1;
 		return finished;
 	    }
-
 	    int latched2BytesFromDeviceUplink;
 	    latched2BytesFromDeviceUplink = deviceUplinkBuffer.update(currentTime);
 	    if (latched2BytesFromDeviceUplink == 1)
@@ -72,7 +70,6 @@ namespace SatHub
 	    int finished = 0;
 	    if (currentTime == _tStartTime)
 	    {
-		memory.use();
         	memory.writeMemTag(_trDataTag);
 	        deviceUplinkBuffer.setTimeFor2Bytes(currentTime, satelliteUplinkBuffer.getTimeFor2Bytes());
 		int dontcare;

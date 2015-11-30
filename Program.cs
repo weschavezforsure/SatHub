@@ -22,7 +22,7 @@ namespace SatHub
         {
 	    DeviceUplinkBuffer[] deviceUplinkBuffers = new DeviceUplinkBuffer[3];
 	    deviceDownlinkBuffers = new DeviceDownlinkBuffer[3];
-            memories = new Memory[16];
+            memories = new Memory[18];
 	    satelliteUplinkBuffer = new SatelliteUplinkBuffer(1333344, 100);            
 	    satelliteDownlinkBuffer = new SatelliteDownlinkBuffer(1333344, 150);            
 	    sendEvents = new SendEvent[40];
@@ -34,23 +34,36 @@ namespace SatHub
 	    int[] currentRequestEvents = new int[3];  
 	    int tCurrentClock = 0;
 	    int[] wait = new int[3];
-            for(int i = 0; i < 2; i++)
+	    string[] currentEventOperations = new string[3];  
+
+	    int i;
+	    int finished;
+	    int j;	
+	    int m;
+
+
+	    for (i = 0; i < 3; i++)
+	    {
+		csvTracker[i] = 0;
+		wait[i] = 0;
+		deviceUplinkBuffers[i] = new DeviceUplinkBuffer(i,304);
+		deviceDownlinkBuffers[i] = new DeviceDownlinkBuffer(i,304);
+	    }	    
+
+
+            for(i = 0; i < 4; i++)
             {
-                memories[i] = new Memory(256, 1);
+                memories[i] = new Memory(128, 1);
             }
-            for(int i = 2; i < 6; i++)
+            for(i = 4; i < 8; i++)
             {
                 memories[i] = new Memory(512, 8);
             }
-            for(int i = 6; i < 16; i++)
+            for(i = 8; i < 18; i++)
             {
                 memories[i] = new Memory(1024, 15);
             }
-	int ii;
-	for (ii = 0; ii < 3; ii++)
-	{
-	    csvTracker[ii]=0;
-	}	    
+
 	    	    
 	    CsvObj[,] csvObjs = new CsvObj[3,15];
 		csvObjs[0,0] = new CsvObj(0,1,"SEND",128,1);
@@ -77,82 +90,105 @@ namespace SatHub
 		csvObjs[2,12] = new CsvObj(10000,3,"SEND",1024,16);
 		csvObjs[2,13] = new CsvObj(11000,3,"SEND",1024,17);
 		csvObjs[2,14] = new CsvObj(12100,3,"REQUEST",512,7);
-            while (tCurrentClock < 50000000)
+            while (tCurrentClock < 5000000000)
             {
-		int i;
-		int count = 0;
-		for (i = 0;i < 3; i++)
-		{
-		    if (currentSendEvents[i] > -1)
-		    {
-			count++;
-		    }
-		}
-		int numSendEvents;
-		numSendEvents = count;
-
-		count = 0;
-		for (i = 0;i < 3; i++)
-		{
-		    if (currentRequestEvents[i] > -1)
-		    {
-			count++;
-		    }
-		}
-		int numRequestEvents;
-		numRequestEvents = count;
-		
-
-		int finished;
-
-		int j;	
-		int m;
-
-
-
-
 		for(i = 0; i < 3; i++)
                 {
+		    if (tCurrentClock == 0)
+		    {
+			currentEventOperations[i] = csvObjs[i,0]._operation;
+			j = whichMemoryToSend (csvObjs[i,0]._size, memories);
+			sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, j);
+			memories[j].use();
+		    }
 		    if (wait[i] == 1)
 		    {
 			if (satelliteUplinkBuffer._inUse == 0)
 			{
 			    if (csvObjs[i,csvTracker[i]]._operation == "SEND")
 			    {
+		    		currentEventOperations[i] = "SEND";
 				j = whichMemoryToEvict(csvObjs[i,csvTracker[i]]._size);
 				sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, j);
+				memories[j].use();
 				satelliteUplinkBuffer.startUsing();
 			    }
 			    else
 			    {
+		    		currentEventOperations[i] = "REQUEST";
 				requestEvents[i] = new RequestEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, -1);
 				satelliteUplinkBuffer.startUsing();
 			    }
 			    wait[i] = 0;
+			    continue;
 			}
 			else
 			{
 			    continue;	
 			}
 		    }
-		    if (sendEvents[i]._evicting == true)
+		    if (currentEventOperations[i] == "SEND")
 		    {
-                    	finished = sendEvents[i].updateSendEvent(tCurrentClock, deviceUplinkBuffers[i], memories[sendEvents[i]._memoryDestination], satelliteUplinkBuffer);
-			if (finished == 1)
+			if (sendEvents[i]._evicting == true)
 			{
-			    satelliteUplinkBuffer.stopUsing();
-			}
+			    finished = sendEvents[i].updateSendEvent(tCurrentClock, deviceUplinkBuffers[i], memories[sendEvents[i]._memoryDestination], satelliteUplinkBuffer);
+			    if (finished == 1)
+			    {
+			    	satelliteUplinkBuffer.stopUsing();
+			    }
+		    	}
+		    	else
+		    	{
+			    finished = sendEvents[i].updateSendEvent(tCurrentClock, deviceUplinkBuffers[i], memories[sendEvents[i]._memoryDestination]);
+		    	}
+		   
 		    }
 		    else
 		    {
-			finished = sendEvents[i].updateSendEvent(tCurrentClock, deviceUplinkBuffers[i], memories[sendEvents[i]._memoryDestination]);
+			if(requestEvents[i]._inMemory)
+			{	
+			    finished = requestEvents[i].updateRequestEvent(tCurrentClock, deviceDownlinkBuffers[i], memories[requestEvents[i]._memoryDesignation]);
+			}
+			else
+			{
+			    finished = requestEvents[i].updateRequestEvent(tCurrentClock, deviceDownlinkBuffers[i], satelliteUplinkBuffer, satelliteDownlinkBuffer);
+			}
 		    }
 		    if (finished == 1)
 		    {
 			    latencies[i,csvTracker[i]] = tCurrentClock - csvObjs[i,csvTracker[i]]._csvTime;
+	    	    	    System.Console.WriteLine(tCurrentClock);
+	    	    	    System.Console.WriteLine("-----------");
+	    	    	    System.Console.WriteLine(latencies[0,0]);
+	    	    	    System.Console.WriteLine(latencies[0,1]);
+	    	    	    System.Console.WriteLine(latencies[0,2]);
+	    	    	    System.Console.WriteLine(latencies[0,3]);
+	    	    	    System.Console.WriteLine(latencies[0,4]);
+	    	    	    System.Console.WriteLine("-----------");
+	    	    	    System.Console.WriteLine(latencies[1,0]);
+	    	    	    System.Console.WriteLine(latencies[1,1]);
+	    	    	    System.Console.WriteLine(latencies[1,2]);
+	    	    	    System.Console.WriteLine(latencies[1,3]);
+	    	    	    System.Console.WriteLine("-----------");
+	    	    	    System.Console.WriteLine(latencies[2,0]);
+	    	    	    System.Console.WriteLine(latencies[2,1]);
+	    	    	    System.Console.WriteLine(latencies[2,2]);
+	    	    	    System.Console.WriteLine(latencies[2,3]);
+	    	    	    System.Console.WriteLine(latencies[2,4]);
+	    	    	    System.Console.WriteLine(latencies[2,5]);
+	    	    	    System.Console.WriteLine(latencies[2,6]);
+	    	    	    System.Console.WriteLine(latencies[2,7]);
+	    	    	    System.Console.WriteLine(latencies[2,8]);
+	    	    	    System.Console.WriteLine(latencies[2,9]);
+	    	    	    System.Console.WriteLine(latencies[2,10]);
+	    	    	    System.Console.WriteLine(latencies[2,11]);
+	    	    	    System.Console.WriteLine(latencies[2,12]);
+	    	    	    System.Console.WriteLine(latencies[2,13]);
+	    	    	    System.Console.WriteLine(latencies[2,14]);
 			    csvTracker[i] += 1;
 			    if (csvObjs[i,csvTracker[i]]._operation == "SEND")
 			    {
+				currentEventOperations[i] = "SEND";
 				j = whichMemoryToSend(csvObjs[i,csvTracker[i]]._size, memories);
 				if (j == -1)
 				{
@@ -161,6 +197,7 @@ namespace SatHub
 				    if (wait[i] == 0)
 				    {
 				    	sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, j);
+					memories[j].use();
 					satelliteUplinkBuffer.startUsing();
 				    }
 				    else
@@ -171,10 +208,12 @@ namespace SatHub
 				else
 				{
 				    sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, j);
+				    memories[j].use();
 				}
 			    }
 			    else
 			    {
+				currentEventOperations[i] = "REQUEST";
 				m = checkTags(csvObjs[i,csvTracker[i]]._trDataTag, memories);
 				if (m == -1)
 				{
@@ -188,26 +227,11 @@ namespace SatHub
 				else
 				{
 				    requestEvents[i] = new RequestEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, m);
+				    memories[m].use();
 				}				
 			    }
 		    } 
                 }
-                
-		for(i = 0; i < numRequestEvents; i++)
-                {
-                    if (requestEvents[i]._inMemory)
-		    {
-			finished = requestEvents[i].updateRequestEvent(tCurrentClock, deviceDownlinkBuffers[i], memories[requestEvents[i]._memoryDesignation]);
-		    }
-		    else
-		    {
-			finished = requestEvents[i].updateRequestEvent(tCurrentClock, deviceDownlinkBuffers[i], satelliteUplinkBuffer, satelliteDownlinkBuffer);
-		    }
-		    if (finished == 1)
-		    {
-			latencies[i,csvTracker[i]] = tCurrentClock - csvObjs[i,csvTracker[i]]._csvTime;
-		    }
-		}
                 tCurrentClock++;
             }
             
@@ -216,7 +240,7 @@ namespace SatHub
 	private static int checkTags (int tag, Memory[] memory)
 	{
 	    int i;
-	    for (i = 0;i < 16; i++)
+	    for (i = 0;i < 18; i++)
 	    {
 		if (memory[i]._trDataTag == tag)
 		{
@@ -231,9 +255,9 @@ namespace SatHub
 	    int i;
 	    if (size==128)
 	    {
-		for (i = 0;i < 2;i++)
+		for (i = 0;i < 4;i++)
 		{
-		    if (memory[i]._trDataTag == 0)
+		    if (memory[i]._trDataTag == 0 && memory[i]._usage == 0)
 		    {
 			return i;
 		    }
@@ -242,9 +266,9 @@ namespace SatHub
 	    }	
 	    if (size==512)
 	    {
-		for (i = 2;i < 6;i++)
+		for (i = 4;i < 8;i++)
 		{
-		    if (memory[i]._trDataTag == 0)
+		    if (memory[i]._trDataTag == 0 && memory[i]._usage == 0)
 		    {
 			return i;
 		    }
@@ -253,9 +277,9 @@ namespace SatHub
 	    }	
 	    if (size==1024)
 	    {
-		for (i = 6;i < 16;i++)
+		for (i = 8;i < 18;i++)
 		{
-		    if (memory[i]._trDataTag == 0)
+		    if (memory[i]._trDataTag == 0 && memory[i]._usage == 0)
 		    {
 			return i;
 		    }
@@ -273,11 +297,11 @@ namespace SatHub
 	    }	
 	    if (size==512)
 	    {
-		return 2;
+		return 4;
 	    }	
 	    if (size==1024)
 	    {
-		return 6;
+		return 8;
 	    }	
 	    return -2;	    
 	}

@@ -44,7 +44,6 @@ namespace SatHub
 	    }
 	    if (currentTime == _tStartTime)
             {
-		memory.use();
 		int dontcare;
 		dontcare = memory.read2Bytes(_numBytesFinished);	
 		_firstSendToDeviceTime = currentTime + memory.getLatency();
@@ -105,7 +104,6 @@ namespace SatHub
         	{
             	    if (_numBytesFinished == _transactionSize - 2)
                     {
-			satelliteDownlinkBuffer.stopUsing();
                     	_finishTime = currentTime + deviceDownlinkBuffer.getTimeFor2Bytes();
 		    }
 		    _numBytesFinished += 2;
