@@ -100,6 +100,10 @@ namespace SatHub
 		csvObjs[2,14] = new CsvObj(12100,3,"REQUEST",512,7);
             while (tCurrentClock < 5000000000)
             {
+		if (csvTracker[0] == 5 && csvTracker[1] == 4 && csvTracker[2] == 15)
+		{
+			break;
+		}
 		for(i = 0; i < 3; i++)
                 {
 		    finished = 0;
