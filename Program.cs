@@ -164,17 +164,17 @@ namespace SatHub
 		    {
 			    if (currentEventOperations[i] == "SEND")
 			    {
-				if (SendEvents[i]._evicting == true)
+				if (sendEvents[i]._evicting == true)
 				{
 				    satelliteUplinkBuffer.stopUsing();
 				}
-				memories[SendEvents[i]._memoryDestination].stopUsing();
+				memories[sendEvents[i]._memoryDestination].stopUsing();
 			    }
 			    else
 			    {
-				if (RequestEvents[i].inMemory)
+				if (requestEvents[i]._inMemory)
 				{
-				    memories[RequestEvents[i]._memoryDesignation].stopUsing();
+				    memories[requestEvents[i]._memoryDesignation].stopUsing();
 				}	
 				else
 				{
