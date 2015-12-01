@@ -42,7 +42,7 @@ namespace SatHub
 	    	return 0;
 	    }
         }
-	public void use ()
+	public void startUsing()
 	{
 	    _usage = 1;
 	}

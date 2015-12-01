@@ -102,12 +102,13 @@ namespace SatHub
             {
 		for(i = 0; i < 3; i++)
                 {
+		    finished = 0;
 		    if (tCurrentClock == 0)
 		    {
 			currentEventOperations[i] = csvObjs[i,0]._operation;
 			j = whichMemoryToSend (csvObjs[i,0]._size, memories);
 			sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, j);
-			memories[j].use();
+			memories[j].startUsing();
 		    }
 		    if (wait[i] == 1)
 		    {
@@ -118,7 +119,7 @@ namespace SatHub
 		    		currentEventOperations[i] = "SEND";
 				j = whichMemoryToEvict(csvObjs[i,csvTracker[i]]._size);
 				sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, j);
-				memories[j].use();
+				memories[j].startUsing();
 				satelliteUplinkBuffer.startUsing();
 			    }
 			    else
@@ -126,6 +127,7 @@ namespace SatHub
 		    		currentEventOperations[i] = "REQUEST";
 				requestEvents[i] = new RequestEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, -1);
 				satelliteUplinkBuffer.startUsing();
+				satelliteDownlinkBuffer.startUsing();
 			    }
 			    wait[i] = 0;
 			    continue;
@@ -140,10 +142,6 @@ namespace SatHub
 			if (sendEvents[i]._evicting == true)
 			{
 			    finished = sendEvents[i].updateSendEvent(tCurrentClock, deviceUplinkBuffers[i], memories[sendEvents[i]._memoryDestination], satelliteUplinkBuffer);
-			    if (finished == 1)
-			    {
-			    	satelliteUplinkBuffer.stopUsing();
-			    }
 		    	}
 		    	else
 		    	{
@@ -164,6 +162,26 @@ namespace SatHub
 		    }
 		    if (finished == 1)
 		    {
+			    if (currentEventOperations[i] == "SEND")
+			    {
+				if (SendEvents[i]._evicting == true)
+				{
+				    satelliteUplinkBuffer.stopUsing();
+				}
+				memories[SendEvents[i]._memoryDestination].stopUsing();
+			    }
+			    else
+			    {
+				if (RequestEvents[i].inMemory)
+				{
+				    memories[RequestEvents[i]._memoryDesignation].stopUsing();
+				}	
+				else
+				{
+				    satelliteUplinkBuffer.stopUsing();
+				    satelliteDownlinkBuffer.stopUsing();
+				}
+			    }
 			    latencies[i,csvTracker[i]] = tCurrentClock - csvObjs[i,csvTracker[i]]._csvTime;
 	    	    	    System.Console.WriteLine(tCurrentClock);
 	    	    	    System.Console.WriteLine("-----------");
@@ -205,7 +223,7 @@ namespace SatHub
 				    if (wait[i] == 0)
 				    {
 				    	sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, j);
-					memories[j].use();
+					memories[j].startUsing();
 					satelliteUplinkBuffer.startUsing();
 				    }
 				    else
@@ -216,7 +234,7 @@ namespace SatHub
 				else
 				{
 				    sendEvents[i] = new SendEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, j);
-				    memories[j].use();
+				    memories[j].startUsing();
 				}
 			    }
 			    else
@@ -230,12 +248,13 @@ namespace SatHub
 				    {
 				    	requestEvents[i] = new RequestEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, false, -1);
 					satelliteUplinkBuffer.startUsing();
+					satelliteDownlinkBuffer.startUsing();
 				    }
 				}
 				else
 				{
 				    requestEvents[i] = new RequestEvent(csvObjs[i,csvTracker[i]]._csvTime, csvObjs[i,csvTracker[i]]._size, csvObjs[i,csvTracker[i]]._trDataTag, i, true, m);
-				    memories[m].use();
+				    memories[m].startUsing();
 				}				
 			    }
 		    } 
