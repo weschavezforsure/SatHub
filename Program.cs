@@ -98,14 +98,54 @@ namespace SatHub
 		csvObjs[2,12] = new CsvObj(10000,3,"SEND",1024,16);
 		csvObjs[2,13] = new CsvObj(11000,3,"SEND",1024,17);
 		csvObjs[2,14] = new CsvObj(12100,3,"REQUEST",512,7);
-            while (tCurrentClock < 5000000000)
+
+	    //foreach (CsvObj poop in csvObjs)
+	    //{
+		//if(poop._operation == "SEND")
+		//{	
+		//	poop._device += 3;
+		//}
+	    //}
+
+            while (tCurrentClock < 50000000000)
             {
-		if (csvTracker[0] == 5 && csvTracker[1] == 4 && csvTracker[2] == 15)
+
+	    if (csvTracker[0] == 5 && csvTracker[1] == 4 && csvTracker[2] == 15)
+	    {
+		int count;
+		System.Console.WriteLine("----Device 0 Latencies----");
+		for (count = 0; count < 5; count++)
 		{
-			break;
+		    System.Console.WriteLine(latencies[0,count]);
 		}
+		System.Console.WriteLine("----Device 1 Latencies----");
+		for (count = 0; count < 4; count++)
+		{
+		    System.Console.WriteLine(latencies[1,count]);
+		}
+		System.Console.WriteLine("----Device 2 Latencies----");
+		for (count = 0; count < 15; count++)
+		{
+		    System.Console.WriteLine(latencies[2,count]);
+		}
+		break;
+	    }
+		   
 		for(i = 0; i < 3; i++)
                 {
+		    if (i == 0 && csvTracker[i] == 5)
+		    {
+			continue;
+		    }
+		    if (i == 1 && csvTracker[i] == 4)
+		    {
+			continue;
+		    }
+		    if (i == 2 && csvTracker[i] == 15)
+		    {
+			continue;
+		    }
+
 		    finished = 0;
 		    if (tCurrentClock == 0)
 		    {
@@ -187,35 +227,24 @@ namespace SatHub
 				}
 			    }
 			    latencies[i,csvTracker[i]] = tCurrentClock - csvObjs[i,csvTracker[i]]._csvTime;
-	    	    	    System.Console.WriteLine(tCurrentClock);
-	    	    	    System.Console.WriteLine("-----------");
-	    	    	    System.Console.WriteLine(latencies[0,0]);
-	    	    	    System.Console.WriteLine(latencies[0,1]);
-	    	    	    System.Console.WriteLine(latencies[0,2]);
-	    	    	    System.Console.WriteLine(latencies[0,3]);
-	    	    	    System.Console.WriteLine(latencies[0,4]);
-	    	    	    System.Console.WriteLine("-----------");
-	    	    	    System.Console.WriteLine(latencies[1,0]);
-	    	    	    System.Console.WriteLine(latencies[1,1]);
-	    	    	    System.Console.WriteLine(latencies[1,2]);
-	    	    	    System.Console.WriteLine(latencies[1,3]);
-	    	    	    System.Console.WriteLine("-----------");
-	    	    	    System.Console.WriteLine(latencies[2,0]);
-	    	    	    System.Console.WriteLine(latencies[2,1]);
-	    	    	    System.Console.WriteLine(latencies[2,2]);
-	    	    	    System.Console.WriteLine(latencies[2,3]);
-	    	    	    System.Console.WriteLine(latencies[2,4]);
-	    	    	    System.Console.WriteLine(latencies[2,5]);
-	    	    	    System.Console.WriteLine(latencies[2,6]);
-	    	    	    System.Console.WriteLine(latencies[2,7]);
-	    	    	    System.Console.WriteLine(latencies[2,8]);
-	    	    	    System.Console.WriteLine(latencies[2,9]);
-	    	    	    System.Console.WriteLine(latencies[2,10]);
-	    	    	    System.Console.WriteLine(latencies[2,11]);
-	    	    	    System.Console.WriteLine(latencies[2,12]);
-	    	    	    System.Console.WriteLine(latencies[2,13]);
-	    	    	    System.Console.WriteLine(latencies[2,14]);
+	    	    	    //System.Console.WriteLine(tCurrentClock);
+	    	    	    //System.Console.WriteLine("-----------");
 			    csvTracker[i] += 1;
+			   
+		    if (i == 0 && csvTracker[i] == 5)
+		    {
+			continue;
+		    }
+		    if (i == 1 && csvTracker[i] == 4)
+		    {
+			continue;
+		    }
+		    if (i == 2 && csvTracker[i] == 15)
+		    {
+			continue;
+		    }
+
+
 			    if (csvObjs[i,csvTracker[i]]._operation == "SEND")
 			    {
 				currentEventOperations[i] = "SEND";
@@ -324,15 +353,15 @@ namespace SatHub
 	{
 	    if (size==128)
 	    {
-		return 0;
+		return 3;
 	    }	
 	    if (size==512)
 	    {
-		return 4;
+		return 7;
 	    }	
 	    if (size==1024)
 	    {
-		return 8;
+		return 15;
 	    }	
 	    return -2;	    
 	}
